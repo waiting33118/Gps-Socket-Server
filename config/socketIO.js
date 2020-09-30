@@ -10,23 +10,34 @@ const socketConfig = (https) => {
   clientNameSpace.on('connection', (socket) => {
     socket.on('userId', (id) => {
       clientConnections.push(id)
-      clientNameSpace.emit('newDrone', newGuestBroadcast(id, clientConnections))
       io.in('home').emit('newDrone', newGuestBroadcast(id, clientConnections))
     })
     socket.on('disconnect', () => {
       clientConnections.pop()
-      clientNameSpace.emit('droneDisconnect', leaveBroadcast(clientConnections))
       io.in('home').emit('droneDisconnect', leaveBroadcast(clientConnections))
+    })
+    socket.on('sendCoords', (data) => {
+      io.in('home').emit('sendCoords', sendCoords(data))
     })
   })
 
-  function newGuestBroadcast (id, arr) {
-    console.log(`|New Connection| Client ID: ${id}\nTotal connections: ${arr.length}`)
-    return { id, arr }
+  function newGuestBroadcast (clientId, connections) {
+    const droneCounts = connections.length.toString()
+    console.log(`|New Connection| Client ID: ${clientId}\nTotal connections: ${droneCounts}`)
+    return {
+      clientId, droneCounts
+    }
   }
-  function leaveBroadcast (arr) {
-    console.log(`|Disconnected| Connections: ${arr.length}`)
-    return { arr }
+  function leaveBroadcast (connections) {
+    const droneCounts = connections.length.toString()
+    console.log(`|Disconnected| Connections: ${droneCounts}`)
+    return {
+      droneCounts
+    }
+  }
+  function sendCoords (coords) {
+    console.log(coords)
+    return coords
   }
 }
 
