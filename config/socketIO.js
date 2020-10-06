@@ -19,11 +19,16 @@ const socketConfig = (https) => {
     socket.on('sendCoords', (data) => {
       io.in('home').emit('sendCoords', sendCoords(data))
     })
+    socket.on('stopSending', () => {
+      console.log('===Gps tracking stopped!===')
+      io.in('home').emit('stopSending')
+    })
   })
 
   function newGuestBroadcast (clientId, connections) {
     const droneCounts = connections.length.toString()
     console.log(`|New Connection| Client ID: ${clientId}\nTotal connections: ${droneCounts}`)
+    console.log(new Date().toString())
     return {
       clientId, droneCounts
     }
@@ -31,13 +36,14 @@ const socketConfig = (https) => {
   function leaveBroadcast (connections) {
     const droneCounts = connections.length.toString()
     console.log(`|Disconnected| Connections: ${droneCounts}`)
+    console.log(new Date().toString())
     return {
       droneCounts
     }
   }
   function sendCoords (coords) {
     console.log(coords)
-    return coords
+    return [coords.longitude, coords.latitude]
   }
 }
 
